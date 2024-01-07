@@ -49,30 +49,30 @@ class Dog:
         self.back_left = back_left
 
 
-blh_direction = Motor.FORWARD   
-blk_direction = Motor.REVERSE
-bla_direction = Motor.FORWARD
+blh_direction = Motor.REVERSE   
+blk_direction = Motor.FORWARD
+bla_direction = Motor.REVERSE
 flh_direction = Motor.REVERSE 
-flk_direction = Motor.REVERSE
-fla_direction = Motor.FORWARD
+flk_direction = Motor.FORWARD
+fla_direction = Motor.REVERSE
 brh_direction = Motor.REVERSE 
 brk_direction = Motor.FORWARD
-bra_direction = Motor.REVERSE
+bra_direction = Motor.FORWARD
 frh_direction = Motor.FORWARD
-frk_direction = Motor.FORWARD
+frk_direction = Motor.REVERSE
 fra_direction = Motor.REVERSE
 
-blh_origin = 90  
+blh_origin = 180  
 blk_origin = 140
-bla_origin = 0
+bla_origin = 90
 flh_origin = 90 
-flk_origin = 140
-fla_origin = 0
+flk_origin = 130
+fla_origin = 90
 brh_origin = 90 
 brk_origin = 35
-bra_origin = 180
+bra_origin = 0
 frh_origin = 90
-frk_origin = 45
+frk_origin = 140
 fra_origin = 178
 
 class JointsNode(Node):
@@ -137,6 +137,15 @@ class JointsNode(Node):
         self.spot.back_left.hip.set_angle(msg.back_left_hip)
         self.spot.back_left.knee.set_angle(msg.back_left_knee)
         self.spot.back_left.ankle.set_angle(msg.back_left_ankle)
+
+
+        self.get_logger().info(f'flh {self.spot.front_left.hip.channel.angle}')
+        self.get_logger().info(f'flk {self.spot.front_left.knee.channel.angle}')
+        self.get_logger().info(f'fla {self.spot.front_left.ankle.channel.angle}')
+        
+        self.get_logger().info(f'blh {self.spot.back_left.hip.channel.angle}')
+        self.get_logger().info(f'blk {self.spot.back_left.knee.channel.angle}')
+        self.get_logger().info(f'bla {self.spot.back_left.ankle.channel.angle}')
 
         self.get_logger().info('Updated joints')
 
