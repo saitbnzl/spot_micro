@@ -32,8 +32,8 @@ class JointKeyboard(Node):
 
 
     def stand(self, height):
-        timestep = 0.05
-        speed = 10  # units per second
+        timestep = 0.02
+        speed = 50  # units per second
         goal_angles = np.array([0, height/4, 3*height/4] * 4)
         self.joint_angles = np.array(self.joint_angles)
         while (np.abs(goal_angles - self.joint_angles) > np.ones(12)*.0001).any():
@@ -41,18 +41,38 @@ class JointKeyboard(Node):
             self.joint_angles += diff_angles
             self.publisher_.publish(self.make_msg(self.joint_angles))
             sleep(timestep)
+    
+    def walk(self, steps, step_height):
+        timestep = 0.1
+        speed = 20  # units per second
+        for _ in range(steps):
+            # Front-right and back-left legs move forward
+            self.stand(step_height)
+            sleep(timestep)
+
+            # Front-left and back-right legs move forward
+            self.stand(-step_height)
+            sleep(timestep)
 
     def shell(self, string):
         args = string.split()
         if args[0].lower() == "lay":
             self.get_logger().info('laying down')
-            self.stand(0)
+            self.stand(-150)
         elif args[0].lower() == "stand":
             self.get_logger().info('standing up')
             try:
                 self.stand(float(args[1]))
             except:
                 self.stand(50)
+        elif args[0].lower() == "walk":
+            self.get_logger().info('walking')
+            try:
+                steps = int(args[1])
+                step_height = float(args[2])
+                self.walk(steps, step_height)
+            except (ValueError, IndexError):
+                self.get_logger().info('Invalid walk command. Usage: walk <steps> <step_height>')
         else:
             self.get_logger().info('input error')
 

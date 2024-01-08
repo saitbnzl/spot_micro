@@ -63,7 +63,7 @@ frk_direction = Motor.REVERSE
 fra_direction = Motor.REVERSE
 
 blh_origin = 180  
-blk_origin = 140
+blk_origin = 130
 bla_origin = 90
 flh_origin = 90 
 flk_origin = 130
