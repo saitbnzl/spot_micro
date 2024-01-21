@@ -14,7 +14,7 @@ class Motor:
         self.channel = channel
         self.direction = direction
         self.origin = origin
-        self._current_angle = 0
+        self._current_angle = 90
 
         self.set_angle(self._current_angle)
 
@@ -49,31 +49,31 @@ class Dog:
         self.back_left = back_left
 
 
-blh_direction = Motor.REVERSE   
+blh_direction = Motor.FORWARD   
 blk_direction = Motor.FORWARD
-bla_direction = Motor.REVERSE
+bla_direction = Motor.FORWARD
 flh_direction = Motor.REVERSE 
 flk_direction = Motor.FORWARD
-fla_direction = Motor.REVERSE
-brh_direction = Motor.REVERSE 
-brk_direction = Motor.FORWARD
-bra_direction = Motor.FORWARD
+fla_direction = Motor.FORWARD
+brh_direction = Motor.FORWARD 
+brk_direction = Motor.REVERSE
+bra_direction = Motor.REVERSE
 frh_direction = Motor.FORWARD
 frk_direction = Motor.REVERSE
 fra_direction = Motor.REVERSE
 
 blh_origin = 180  
-blk_origin = 130
-bla_origin = 90
-flh_origin = 90 
-flk_origin = 130
-fla_origin = 90
-brh_origin = 90 
-brk_origin = 35
-bra_origin = 0
+blk_origin = 60
+bla_origin = 0
+flh_origin = 180 
+flk_origin = 60
+fla_origin = 0
+brh_origin = 0 
+brk_origin = 120
+bra_origin = 180
 frh_origin = 90
-frk_origin = 140
-fra_origin = 178
+frk_origin = 150
+fra_origin = 180
 
 class JointsNode(Node):
 
@@ -95,7 +95,7 @@ class JointsNode(Node):
         # back right leg (purple)
         brh = kit.servo[8]
         brk = kit.servo[9]
-        bra = kit.servo[10]
+        bra = kit.servo[15]
 
         # front right leg (pink)
         frh = kit.servo[12]
@@ -125,16 +125,16 @@ class JointsNode(Node):
         self.subscription  # prevent unused variable warning
 
     def joints_callback(self, msg):
-        self.spot.front_right.hip.set_angle(msg.front_right_hip)
+        #self.spot.front_right.hip.set_angle(msg.front_right_hip)
         self.spot.front_right.knee.set_angle(msg.front_right_knee)
         self.spot.front_right.ankle.set_angle(msg.front_right_ankle)
-        self.spot.front_left.hip.set_angle(msg.front_left_hip)
+        #self.spot.front_left.hip.set_angle(msg.front_left_hip)
         self.spot.front_left.knee.set_angle(msg.front_left_knee)
         self.spot.front_left.ankle.set_angle(msg.front_left_ankle)
-        self.spot.back_right.hip.set_angle(msg.back_right_hip)
+        #self.spot.back_right.hip.set_angle(msg.back_right_hip)
         self.spot.back_right.knee.set_angle(msg.back_right_knee)
         self.spot.back_right.ankle.set_angle(msg.back_right_ankle)
-        self.spot.back_left.hip.set_angle(msg.back_left_hip)
+        #self.spot.back_left.hip.set_angle(msg.back_left_hip)
         self.spot.back_left.knee.set_angle(msg.back_left_knee)
         self.spot.back_left.ankle.set_angle(msg.back_left_ankle)
 
@@ -146,6 +146,14 @@ class JointsNode(Node):
         self.get_logger().info(f'blh {self.spot.back_left.hip.channel.angle}')
         self.get_logger().info(f'blk {self.spot.back_left.knee.channel.angle}')
         self.get_logger().info(f'bla {self.spot.back_left.ankle.channel.angle}')
+
+        self.get_logger().info(f'brh {self.spot.back_right.hip.channel.angle}')
+        self.get_logger().info(f'brk {self.spot.back_right.knee.channel.angle}')
+        self.get_logger().info(f'bra {self.spot.back_right.ankle.channel.angle}')
+
+        self.get_logger().info(f'frh {self.spot.front_right.hip.channel.angle}')
+        self.get_logger().info(f'frk {self.spot.front_right.knee.channel.angle}')
+        self.get_logger().info(f'fra {self.spot.front_right.ankle.channel.angle}')
 
         self.get_logger().info('Updated joints')
 

@@ -17,8 +17,8 @@ plt.ion()  # Turn on interactive mode
 
 ax = setupView(200).view_init(elev=12., azim=28)
 
-omega =  pi/4
-phi =0
+omega = 0
+phi = 0
 psi = 0
 
 xm = 0
@@ -30,10 +30,11 @@ l2=20
 l3=80
 l4=80
 
-L = 120
-W = 90
+L = 270
+W = 110
 
-Lp=np.array([[100,-100,100,1],[100,-100,-100,1],[-100,-100,100,1],[-100,-100,-100,1]])
+Lp=np.array([[100,-100,100,1],[100,-100,-100,1],[-100,-100,100,1],[-100,-100,-100,1]]).astype(np.float32)
+Op=np.array([[100,-100,100,1],[100,-100,-100,1],[-100,-100,100,1],[-100,-100,-100,1]]).astype(np.float32)
 
 sHp=np.sin(pi/2)
 cHp=np.cos(pi/2)
@@ -61,6 +62,14 @@ def bodyIK(omega,phi,psi,xm,ym,zm):
            ])
 
 def legIK(point):
+    """
+    x/y/z=Position of the Foot in Leg-Space
+
+    F=Length of shoulder-point to target-point on x/y only
+    G=length we need to reach to the point on x/y
+    H=3-Dimensional length we need to reach
+    """
+
     (x,y,z)=(point[0],point[1],point[2])
     F=sqrt(x**2+y**2-l1**2)
     G=F-l2  
@@ -68,12 +77,22 @@ def legIK(point):
     theta1=-atan2(y,x)-atan2(F,-l1)
 
     D=(H**2-l3**2-l4**2)/(2*l3*l4)
+    print(D)
     theta3=acos(D) 
 
     theta2=atan2(z,G)-atan2(l4*sin(theta3),l3+l4*cos(theta3))
 
     return(theta1,theta2,theta3)
 
+def calcAngles():
+        (Tlf, Trf, Tlb, Trb) = bodyIK(omega, phi, psi, xm, ym, zm)
+        Ix = np.array([[-1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
+        Fla = legIK(np.linalg.inv(Tlf) @ Lp[0])
+        Fra = legIK(Ix @ np.linalg.inv(Trf) @ Lp[1])
+        Bla = legIK(np.linalg.inv(Tlb) @ Lp[2])
+        Bra = legIK(Ix @ np.linalg.inv(Trb) @ Lp[3])
+        return Fla,Fra,Bla,Bra
+    
 def calcLegPoints(angles):
     (theta1,theta2,theta3)=angles
     theta23=theta2+theta3
@@ -109,5 +128,3 @@ def drawRobot(Lp,angles,center):
 
     drawLegPair(Tlf,Trf,Lp[0],Lp[1])
     drawLegPair(Tlb,Trb,Lp[2],Lp[3])
-
-drawRobot(Lp,(0.4,0,0),(0,0,0))

@@ -1,18 +1,14 @@
 import rclpy
 from rclpy.node import Node
 
-import numpy as np
-from time import sleep
-from spot_interfaces.msg import Joints
-
+from actions import *
 
 class JointKeyboard(Node):
 
     def __init__(self):
         super().__init__('joint_keyboard_controller')
-        self.publisher_ = self.create_publisher(Joints, 'joints', 10)
-        self.joint_angles = [0.0] * 12
         self.get_logger().info('starting joint_keyboard_controller node')
+        self.actions = Actions()
 
     def make_msg(self, angle_list):
         joints = Joints()
@@ -30,30 +26,7 @@ class JointKeyboard(Node):
         joints.back_left_ankle = angle_list[11]
         return joints
 
-
-    def stand(self, height):
-        timestep = 0.02
-        speed = 50  # units per second
-        goal_angles = np.array([0, height/4, 3*height/4] * 4)
-        self.joint_angles = np.array(self.joint_angles)
-        while (np.abs(goal_angles - self.joint_angles) > np.ones(12)*.0001).any():
-            diff_angles = np.maximum(np.minimum(goal_angles - self.joint_angles, np.ones(12) * speed * timestep), -np.ones(12) * speed * timestep)
-            self.joint_angles += diff_angles
-            self.publisher_.publish(self.make_msg(self.joint_angles))
-            sleep(timestep)
     
-    def walk(self, steps, step_height):
-        timestep = 0.1
-        speed = 20  # units per second
-        for _ in range(steps):
-            # Front-right and back-left legs move forward
-            self.stand(step_height)
-            sleep(timestep)
-
-            # Front-left and back-right legs move forward
-            self.stand(-step_height)
-            sleep(timestep)
-
     def shell(self, string):
         args = string.split()
         if args[0].lower() == "lay":
@@ -65,14 +38,9 @@ class JointKeyboard(Node):
                 self.stand(float(args[1]))
             except:
                 self.stand(50)
-        elif args[0].lower() == "walk":
+        elif args[0].lower() == "w":
+            self.actions.walk(100, 50, 5)
             self.get_logger().info('walking')
-            try:
-                steps = int(args[1])
-                step_height = float(args[2])
-                self.walk(steps, step_height)
-            except (ValueError, IndexError):
-                self.get_logger().info('Invalid walk command. Usage: walk <steps> <step_height>')
         else:
             self.get_logger().info('input error')
 
