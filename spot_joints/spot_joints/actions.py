@@ -33,8 +33,15 @@ class Actions(Node):
         return joints
 
     def stand(self, height=50):
-        kinematics.Lp = kinematics.Op
+        kinematics.Lp = kinematics.Op.copy()
         Fla,Fra,Bla,Bra = kinematics.calcAngles()
+        self.joint_angles = Fra + Fla + Bra + Bla
+        self.joint_angles = [degrees(angle) for angle in self.joint_angles] 
+        self.joint_angles = np.interp(self.joint_angles, (-180,  +180), (0, 180))
+        self.publisher_.publish(self.make_msg(self.joint_angles))
+
+    def pose(self, omega = 0, phi = 0, psi = 0):
+        Fla,Fra,Bla,Bra = kinematics.calcAngles(omega, phi, psi)
         self.joint_angles = Fra + Fla + Bra + Bla
         self.joint_angles = [degrees(angle) for angle in self.joint_angles] 
         self.joint_angles = np.interp(self.joint_angles, (-180,  +180), (0, 180))
@@ -65,3 +72,4 @@ class Actions(Node):
                     self.joint_angles = np.interp(self.joint_angles, (-180,  +180), (0, 180))
                     self.publisher_.publish(self.make_msg(self.joint_angles))
                     sleep(timestep)
+        return

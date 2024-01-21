@@ -77,14 +77,13 @@ def legIK(point):
     theta1=-atan2(y,x)-atan2(F,-l1)
 
     D=(H**2-l3**2-l4**2)/(2*l3*l4)
-    print(D)
     theta3=acos(D) 
 
     theta2=atan2(z,G)-atan2(l4*sin(theta3),l3+l4*cos(theta3))
 
     return(theta1,theta2,theta3)
 
-def calcAngles():
+def calcAngles(omega=0, phi=0, psi=0):
         (Tlf, Trf, Tlb, Trb) = bodyIK(omega, phi, psi, xm, ym, zm)
         Ix = np.array([[-1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
         Fla = legIK(np.linalg.inv(Tlf) @ Lp[0])

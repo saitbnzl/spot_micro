@@ -5,26 +5,14 @@ from spot_interfaces.msg import Commands
 from actions import *
 
 import threading
-
-class StoppableThread(threading.Thread):
-    """Thread class with a stop() method. The thread itself has to check
-    regularly for the stopped() condition."""
-
-    def __init__(self,  *args, **kwargs):
-        super(StoppableThread, self).__init__(*args, **kwargs)
-        self._stop_event = threading.Event()
-
-    def stop(self):
-        self._stop_event.set()
-
-    def stopped(self):
-        return self._stop_event.is_set()
+from time import sleep
 
 class RemoteSubscriber(Node):
     def __init__(self):
         super().__init__('remote_subscriber')
         self.get_logger().info('starting remote_subscriber node')
         self.actions = Actions()
+        self.walkingThread = None
         self.subscription = self.create_subscription(
             Commands,
             'commands',
@@ -36,12 +24,12 @@ class RemoteSubscriber(Node):
         self.get_logger().info(f'Command recevied: {msg}')
 
         if msg.walk:
-            self.walkingThread = StoppableThread(target=self.actions.walk, args=(3,30))
-            if not self.walkingThread.is_alive():
-                self.walkingThread.start()
+            if self.walkingThread is not None:
+                self.walkingThread.join()
+            self.walkingThread = threading.Thread(target=self.actions.walk, args=(1,30))
+            self.walkingThread.start()
             return
         elif msg.stop:
-            self.walkingThread.stop()
             self.walkingThread.join()
             self.actions.stand()
             return
