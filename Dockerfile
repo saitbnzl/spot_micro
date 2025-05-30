@@ -1,4 +1,4 @@
-FROM ros:foxy-ros-base-l4t-r32.4.4
+FROM ros:foxy-ros-base
 RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 RUN apt-get update && apt-get install -y \
@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y \
     wget \
     vim \
     sudo \
-    && rm -rf /var/likb/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 RUN pip3 install adafruit-circuitpython-servokit Jetson.GPIO
 
 COPY 99-gpio.rules /etc/udev/rules.d/99-gpio.rules
@@ -20,11 +20,11 @@ ARG PW=micro
 
 RUN useradd -m ${USER} --uid=${UID} && echo "${USER}:${PW}" | \
     chpasswd && \
-    groupadd -f -r gpio && \ 
-    groupmod --gid=108 i2c && \ 
+    groupadd -f -r gpio && \
+    groupmod --gid=108 i2c && \
     usermod -a -G gpio ${USER} && \
     usermod -a -G i2c ${USER} && \
-    usermod -a -G sudo ${USER} 
+    usermod -a -G sudo ${USER}
 
 USER ${UID}:${GID}
 WORKDIR /home/${USER}
