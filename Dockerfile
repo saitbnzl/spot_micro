@@ -1,7 +1,10 @@
 FROM ros:rolling-ros-base
-RUN apt-get update && apt-get install -y locales
-RUN locale-gen en_US.UTF-8
+
+# Set UTF-8 locale
+RUN apt-get update && apt-get install -y locales && locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
+
+# Install system packages
 RUN apt-get update && apt-get install -y \
     tmux \
     zsh \
@@ -9,28 +12,44 @@ RUN apt-get update && apt-get install -y \
     wget \
     vim \
     sudo \
+    python3-pip \
+    python3-venv \
+    python3-colcon-common-extensions \
+    git \
     && rm -rf /var/lib/apt/lists/*
-RUN apt-get update && apt-get install -y python3-pip python3-venv
 
+# Create and activate Python virtual environment
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+ENV PYTHONPATH="/opt/venv/lib/python3/site-packages:$PYTHONPATH"
 
-RUN python3 -m venv /opt/venv && \
-    . /opt/venv/bin/activate && \
-    pip install adafruit-circuitpython-servokit Jetson.GPIO
+# Install Python packages in venv
+RUN /opt/venv/bin/pip install --upgrade pip \
+    && /opt/venv/bin/pip install \
+        adafruit-circuitpython-servokit \
+        Jetson.GPIO \
+        empy \
+        catkin_pkg \
+	numpy
 
-COPY 99-gpio.rules /etc/udev/rules.d/99-gpio.rules
-
+# Setup ROS workspace
 ARG USER=spot
-ARG UID=1000
-ARG GID=1000
+ARG UID=1001
+ARG GID=1001
 ARG PW=8905
 
-RUN groupadd -g 108 i2c && \
+# Create user and groups
+RUN groupadd -g ${GID} ${USER} && \
+    groupadd -g 108 i2c && \
     groupadd -f -r gpio && \
-    useradd -m ${USER} --uid=${UID} && \
+    useradd -m ${USER} --uid=${UID} --gid=${GID} && \
     echo "${USER}:${PW}" | chpasswd && \
     usermod -a -G gpio ${USER} && \
     usermod -a -G i2c ${USER} && \
     usermod -a -G sudo ${USER}
+
+# Copy udev rules
+COPY 99-gpio.rules /etc/udev/rules.d/99-gpio.rules
 
 WORKDIR /home/${USER}
 
@@ -39,13 +58,16 @@ RUN  mkdir -p /ros2_ws/src/ && \
     cd /ros2_ws/src/ && \
     git clone https://github.com/saitbnzl/spot_micro.git
 
+
+
 # Make sure the script is executable
 RUN chmod +x /ros2_ws/src/spot_micro/entrypoint.sh
+RUN chmod +x /ros2_ws/src/spot_micro/docker_install.sh
 
-RUN apt-get update && apt-get install -y \
-    python3-colcon-common-extensions
+RUN bash /ros2_ws/src/spot_micro/docker_install.sh
 
-RUN . /opt/ros/foxy/setup.sh && \
+
+RUN . /opt/ros/rolling/setup.sh && \
     cd /ros2_ws && \
     colcon build --symlink-install
 
