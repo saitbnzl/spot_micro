@@ -7,6 +7,8 @@ ENV LANG=en_US.UTF-8
 ARG USER=spot
 ARG UID=1000
 ARG GID=1000
+ARG GPIO_GID=997
+ARG I2C_GID=998
 ARG PW=micro
 ARG REPO_URL="https://github.com/saitbnzl/spot_micro"
 
@@ -21,8 +23,8 @@ RUN apt-get update && apt-get install -y \
 COPY 99-gpio.rules /etc/udev/rules.d/99-gpio.rules
 
 # 2) Create your “spot” group with GID 1000, then gpio/i2c, then useradd --gid=1000
-RUN groupadd -f -r gpio \
-  && groupadd -f -r i2c \
+RUN groupadd -f -r -g ${GPIO_GID} gpio \
+  && groupadd -f -r -g ${I2C_GID} i2c \
   && useradd -m ${USER} --uid=${UID} \
   && echo "${USER}:${PW}" | chpasswd \
   && usermod -aG gpio,i2c,sudo ${USER}
