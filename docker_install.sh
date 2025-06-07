@@ -7,7 +7,7 @@ sudo apt install -y \
     ca-certificates \
     curl \
     gnupg \
-    lsb-release
+    bookworm
 
 # Add Docker’s official GPG key
 sudo mkdir -p /etc/apt/keyrings
