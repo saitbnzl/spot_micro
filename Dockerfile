@@ -1,44 +1,47 @@
-# Use the modern, LTS ROS 2 Humble base image (based on Ubuntu 22.04)
+# ─── Dockerfile ───────────────────────────────────────────────────────────
 FROM ros:humble-ros-base
 
+SHELL ["/bin/bash", "-c"]
+
 ENV LANG=en_US.UTF-8
-
-# Install dependencies, including the lgpio packages which are available on Ubuntu 22.04
-RUN apt-get update && apt-get install -y \
-    locales \
-    python3-pip \
-    git \
-    tmux \
-    zsh \
-    curl \
-    wget \
-    vim \
-    sudo \
-    liblgpio-dev \
-    python3-lgpio \
-    && locale-gen en_US.UTF-8 \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN pip3 install adafruit-circuitpython-servokit adafruit-blinka
-
-COPY 99-gpio.rules /etc/udev/rules.d/99-gpio.rules
-
 ARG USER=spot
 ARG UID=1000
 ARG GID=1000
 ARG PW=micro
+ARG REPO_URL="https://github.com/saitbnzl/spot_micro"
 
-RUN useradd -m ${USER} --uid=${UID} && echo "${USER}:${PW}" | \
-    chpasswd && \
-    groupadd -f -r gpio && \
-    groupadd --gid 108 i2c && \
-    usermod -a -G gpio ${USER} && \
-    usermod -a -G i2c ${USER} && \
-    usermod -a -G sudo ${USER}
+# 1) System + GPIO/I2C bits
+RUN apt-get update && apt-get install -y \
+     locales python3-pip python3-lgpio liblgpio-dev \
+     git tmux zsh curl wget vim sudo \
+  && locale-gen en_US.UTF-8 \
+  && rm -rf /var/lib/apt/lists/* \
+  && pip3 install --no-cache-dir adafruit-circuitpython-servokit adafruit-blinka
 
-USER ${UID}:${GID}
+COPY 99-gpio.rules /etc/udev/rules.d/99-gpio.rules
+
+# 2) Create your “spot” group with GID 1000, then gpio/i2c, then useradd --gid=1000
+RUN groupadd -f -r gpio \
+  && groupadd -f -r i2c \
+  && useradd -m ${USER} --uid=${UID} \
+  && echo "${USER}:${PW}" | chpasswd \
+  && usermod -aG gpio,i2c,sudo ${USER}
+
 WORKDIR /home/${USER}
 
-# The path to the entrypoint is now absolute for robustness
-ENTRYPOINT ["/home/spot/ros2_ws/src/spot_micro/entrypoint.sh"]
+# 3) Clone, build, entrypoint...
+RUN mkdir -p ros2_ws/src \
+ && git clone --depth=1 ${REPO_URL} ros2_ws/src/spot_micro \
+ && cd ros2_ws \
+ && . /opt/ros/humble/setup.bash \
+ && colcon build --symlink-install
+
+COPY entrypoint.sh /home/${USER}/entrypoint.sh
+RUN chmod +x /home/${USER}/entrypoint.sh
+
+
+USER spot
+
+
+ENTRYPOINT ["/home/spot/entrypoint.sh"]
 CMD ["bash"]
