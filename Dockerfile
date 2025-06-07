@@ -30,7 +30,8 @@ RUN /opt/venv/bin/pip install --upgrade pip \
         Jetson.GPIO \
         empy \
         catkin_pkg \
-	numpy
+	numpy \
+	lark
 
 # Setup ROS workspace
 ARG USER=spot
@@ -64,9 +65,6 @@ RUN  mkdir -p /ros2_ws/src/ && \
 RUN chmod +x /ros2_ws/src/spot_micro/entrypoint.sh
 RUN chmod +x /ros2_ws/src/spot_micro/docker_install.sh
 
-RUN bash /ros2_ws/src/spot_micro/docker_install.sh
-
-
 RUN . /opt/ros/rolling/setup.sh && \
     cd /ros2_ws && \
     colcon build --symlink-install
@@ -74,4 +72,5 @@ RUN . /opt/ros/rolling/setup.sh && \
 ENTRYPOINT ["/ros2_ws/src/spot_micro/entrypoint.sh"]
 RUN chmod +x /ros2_ws/src/spot_micro/entrypoint.sh
 
+USER spot
 CMD ["bash"]
