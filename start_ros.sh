@@ -5,8 +5,7 @@ docker run -it --net=host \
   --privileged \
   -e USER=$USER \
   -e CONTAINER_NAME=ros-container \
-  --runtime=nvidia \
   --rm \
   -v "/home/$USER/:/home/spot/" \
-  --name=ros2-foxy \
-  spot:foxy
+  --name=ros2-humble \
+  spot-gpio:humble
