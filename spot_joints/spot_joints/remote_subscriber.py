@@ -44,7 +44,7 @@ class RemoteSubscriber(Node):
             self.actions.stand()
 
         elif msg.lay:
-            self.actions.pose(phi=-0.3)  # Lean forward and down for a lay pose
+            self.actions.pose(phi=-0.4, height=20)  # Lean forward and down for a lay pose
 
         elif msg.stop:
             self.actions.stand()
