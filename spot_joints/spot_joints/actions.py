@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-import kinematics as kinematics
+import spot_joints.kinematics as kinematics
 import numpy as np
 from math import *
 from spot_interfaces.msg import Joints

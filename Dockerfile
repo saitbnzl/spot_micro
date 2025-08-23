@@ -7,8 +7,8 @@ ENV LANG=en_US.UTF-8
 ARG USER=spot
 ARG UID=1000
 ARG GID=1000
-ARG GPIO_GID=997
-ARG I2C_GID=998
+ARG GPIO_GID=993
+ARG I2C_GID=994
 ARG PW=micro
 ARG REPO_URL="https://github.com/saitbnzl/spot_micro"
 
@@ -40,6 +40,7 @@ RUN mkdir -p ros2_ws/src \
 
 COPY entrypoint.sh /home/${USER}/entrypoint.sh
 RUN chmod +x /home/${USER}/entrypoint.sh
+RUN chown -R ${USER}:${USER} /home/${USER}/ros2_ws
 
 
 USER spot

@@ -1,11 +1,14 @@
-#!/bin/sh
+#!/bin/bash
+
+# Optional: set UID/GID for future use
 export UID=$(id -u)
 export GID=$(id -g)
-docker run -it --net=host \
+
+docker run -it --rm \
+  --net=host \
   --privileged \
+  --device /dev/i2c-1 \
   -e USER=$USER \
-  -e CONTAINER_NAME=ros-container \
-  --rm \
-  -v "/home/$USER/:/home/spot/" \
-  --name=ros2-humble \
-  spot-gpio:humble
+  -v $HOME/ros2_ws:/home/spot/ros2_ws \
+  --name ros2-humble \
+  spot:latest

@@ -20,6 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+	    'remote_subscriber = spot_joints.remote_subscriber:main',
             'joint_controller = spot_joints.joint_controller:main',
             'joint_publisher = spot_joints.joint_publisher:main',
             'joint_keyboard_controller = spot_joints.joint_keyboard_controller:main'
