@@ -1,3 +1,5 @@
+import os
+import json
 import rclpy
 from rclpy.node import Node
 from adafruit_servokit import ServoKit
@@ -49,31 +51,28 @@ class Dog:
         self.back_left = back_left
 
 
-blh_direction = Motor.FORWARD   
-blk_direction = Motor.FORWARD
-bla_direction = Motor.FORWARD
-flh_direction = Motor.REVERSE 
-flk_direction = Motor.FORWARD
-fla_direction = Motor.FORWARD
-brh_direction = Motor.FORWARD 
-brk_direction = Motor.REVERSE
-bra_direction = Motor.REVERSE
-frh_direction = Motor.FORWARD
-frk_direction = Motor.REVERSE
-fra_direction = Motor.REVERSE
+CONFIG_PATH = os.path.expanduser("~/ros2_ws/src/spot_micro/config/motor_config.json")
 
-blh_origin = 180  
-blk_origin = 60
-bla_origin = 0
-flh_origin = 180 
-flk_origin = 60
-fla_origin = 0
-brh_origin = 0 
-brk_origin = 120
-bra_origin = 180
-frh_origin = 90
-frk_origin = 150
-fra_origin = 180
+with open(CONFIG_PATH, "r") as f:
+    motor_config = json.load(f)["motors"]
+
+def get_motor_config(name):
+    return motor_config[name]["direction"], motor_config[name]["origin"]
+
+# Unpack directions and origins dynamically
+blh_direction, blh_origin = get_motor_config("blh")
+blk_direction, blk_origin = get_motor_config("blk")
+bla_direction, bla_origin = get_motor_config("bla")
+flh_direction, flh_origin = get_motor_config("flh")
+flk_direction, flk_origin = get_motor_config("flk")
+fla_direction, fla_origin = get_motor_config("fla")
+brh_direction, brh_origin = get_motor_config("brh")
+brk_direction, brk_origin = get_motor_config("brk")
+bra_direction, bra_origin = get_motor_config("bra")
+frh_direction, frh_origin = get_motor_config("frh")
+frk_direction, frk_origin = get_motor_config("frk")
+fra_direction, fra_origin = get_motor_config("fra")
+
 
 class JointsNode(Node):
 

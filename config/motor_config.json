@@ -1,0 +1,16 @@
+{
+  "motors": {
+    "blh": { "direction": 1, "origin": 180 },
+    "blk": { "direction": 1, "origin": 60 },
+    "bla": { "direction": 1, "origin": 0 },
+    "flh": { "direction": -1, "origin": 180 },
+    "flk": { "direction": 1, "origin": 60 },
+    "fla": { "direction": 1, "origin": 0 },
+    "brh": { "direction": 1, "origin": 0 },
+    "brk": { "direction": -1, "origin": 120 },
+    "bra": { "direction": -1, "origin": 180 },
+    "frh": { "direction": 1, "origin": 90 },
+    "frk": { "direction": -1, "origin": 150 },
+    "fra": { "direction": -1, "origin": 180 }
+  }
+}
